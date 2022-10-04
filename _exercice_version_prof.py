@@ -45,11 +45,11 @@ def remove_comments(full_text, comment_start, comment_end):
 		text = text[:start] + text[end + len(comment_end):]
 
 def get_tag_prefix(text, opening_tags, closing_tags):
-	for t in zip(opening_tags, closing_tags):
-		if text.startswith(t[0]):
-			return (t[0], None)
-		elif text.startswith(t[1]):
-			return (None, t[1])
+	for otag, ctag in zip(opening_tags, closing_tags):
+		if text.startswith(otag):
+			return (otag, None)
+		elif text.startswith(ctag):
+			return (None, ctag)
 	return (None, None)
 
 def check_tags(full_text, tag_names, comment_tags):
@@ -58,27 +58,27 @@ def check_tags(full_text, tag_names, comment_tags):
 		return False
 
 	# On construit nos balises à la HTML ("head" donne "<head>" et "</head>")
-	otags = {f"<{name}>": f"</{name}>" for name in tag_names}
-	ctags = dict((v, k) for k, v in otags.items())
+	opening_tags = {f"<{name}>": f"</{name}>" for name in tag_names} # Ouvrant à fermant
+	closing_tags = dict((v, k) for k, v in opening_tags.items()) # Fermant à ouvrant
 
 	# Même algo qu'au numéro 1, mais adapté aux balises de plusieurs caractères
 	tag_stack = []
 	while len(text) != 0:
-		tag = get_tag_prefix(text, otags.keys(), ctags.keys())
+		opening, closing = get_tag_prefix(text, opening_tags.keys(), closing_tags.keys())
 		# Si ouvrant:
-		if tag[0] is not None:
+		if opening is not None:
 			# On empile et on avance
-			tag_stack.append(tag[0])
-			text = text[len(tag[0]):]
+			tag_stack.append(opening)
+			text = text[len(opening):]
 		# Si fermant:
-		elif tag[1] is not None:
+		elif closing is not None:
 			# Si pile vide OU match pas le haut de la pile:
-			if len(tag_stack) == 0 or tag_stack[-1] != ctags[tag[1]]:
+			if len(tag_stack) == 0 or tag_stack[-1] != closing_tags[closing]:
 				# Pas bon
 				return False
 			# On dépile et on avance
 			tag_stack.pop()
-			text = text[len(tag[1]):]
+			text = text[len(closing):]
 		# Sinon:
 		else:
 			# On avance jusqu'à la prochaine balise.
@@ -101,9 +101,11 @@ if __name__ == "__main__":
 	spam = "Hello, world!"
 	eggs = "Hello, /* OOGAH BOOGAH world!"
 	parrot = "Hello, OOGAH BOOGAH*/ world!"
+	dead_parrot = "Hello, /*oh brave new */world!"
 	print(remove_comments(spam, "/*", "*/"))
 	print(remove_comments(eggs, "/*", "*/"))
 	print(remove_comments(parrot, "/*", "*/"))
+	print(remove_comments(dead_parrot, "/*", "*/"))
 	print()
 
 	otags = ("<head>", "<body>", "<h1>")

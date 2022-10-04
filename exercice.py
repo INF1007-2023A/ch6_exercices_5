@@ -16,7 +16,7 @@ def check_tags(full_text, tag_names, comment_tags):
 
 
 if __name__ == "__main__":
-	brackets = ("(", ")", "{", "}")
+	brackets = ("(", ")", "{", "}", "[", "]")
 	yeet = "(yeet){yeet}"
 	yeeet = "({yeet})"
 	yeeeet = "({yeet)}"
@@ -27,12 +27,14 @@ if __name__ == "__main__":
 	print(check_brackets(yeeeeet, brackets))
 	print()
 
-	spam = "Hello, /* OOGAH BOOGAH */world!"
+	spam = "Hello, world!"
 	eggs = "Hello, /* OOGAH BOOGAH world!"
 	parrot = "Hello, OOGAH BOOGAH*/ world!"
+	dead_parrot = "Hello, /*oh brave new */world!"
 	print(remove_comments(spam, "/*", "*/"))
 	print(remove_comments(eggs, "/*", "*/"))
 	print(remove_comments(parrot, "/*", "*/"))
+	print(remove_comments(dead_parrot, "/*", "*/"))
 	print()
 
 	otags = ("<head>", "<body>", "<h1>")
